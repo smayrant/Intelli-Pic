@@ -13,16 +13,34 @@ const app = new Clarifai.App({
 	apiKey: process.env.REACT_APP_API_KEY
 });
 class App extends Component {
-	constructor () {
-		super();
-		this.state = {
-			input: "",
-			imageUrl: "",
-			box: {},
-			route: "signin",
-			isSignedIn: false
-		};
-	}
+	state = {
+		input: "",
+		imageUrl: "",
+		box: {},
+		route: "signin",
+		isSignedIn: false,
+		user: {
+			id: "",
+			name: "",
+			email: "",
+			password: "",
+			entries: 0,
+			joined: ""
+		}
+	};
+
+	loadUser = userData => {
+		this.setState({
+			user: {
+				id: userData.id,
+				name: userData.name,
+				email: userData.email,
+				password: userData.password,
+				entries: userData.entries,
+				joined: userData.joined
+			}
+		});
+	};
 
 	calculateFaceLocation = data => {
 		const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -80,10 +98,15 @@ class App extends Component {
 						<ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onSubmit} />
 						<FaceRecognition box={box} imageUrl={imageUrl} />
 					</div>
-				) : route === "login" ? (
-					<Login onRouteChange={this.onRouteChange} />
+				) : route === "register" ? (
+					<Register
+						name={this.state.user.name}
+						entries={this.state.user.entries}
+						loadUser={this.loadUser}
+						onRouteChange={this.onRouteChange}
+					/>
 				) : (
-					<Register onRouteChange={this.onRouteChange} />
+					<Login loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
 				)}
 			</div>
 		);
