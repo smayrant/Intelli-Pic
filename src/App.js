@@ -64,8 +64,7 @@ class App extends Component {
 		this.setState({ input: e.target.value });
 	};
 
-	onSubmit = e => {
-		e.preventDefault();
+	onSubmit = () => {
 		this.setState({ imageUrl: this.state.input });
 		app.models
 			.predict(
@@ -74,7 +73,23 @@ class App extends Component {
 				this.state.input
 			)
 			// the calculations returned by calculateFaceLocation is placed as an argument into the displayFaceBox function
-			.then(response => this.displayFaceBox(this.calculateFaceLocation(response)).catch(err => console.log(err)));
+			.then(response => {
+				if (response) {
+					fetch("http://localhost:3000/image", {
+						method: "put",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							id: this.state.user.id
+						})
+					})
+						.then(response => response.json())
+						.then(count => {
+							this.setState({ ...this.state.user, user: { entries: count, name: this.state.user.name } });
+						});
+				}
+				this.displayFaceBox(this.calculateFaceLocation(response));
+			})
+			.catch(err => console.log(err));
 	};
 
 	onRouteChange = route => {
@@ -94,7 +109,7 @@ class App extends Component {
 				{route === "home" ? (
 					<div>
 						<Logo />
-						<Rank />
+						<Rank name={this.state.user.name} entries={this.state.user.entries} />
 						<ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onSubmit} />
 						<FaceRecognition box={box} imageUrl={imageUrl} />
 					</div>
