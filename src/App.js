@@ -1,33 +1,35 @@
 import React, { Component } from "react";
 import Navigation from "./components/Navigation";
 import Logo from "./components/Logo";
+import Clarifai from "clarifai";
 import ImageLinkForm from "./components/ImageLinkForm";
 import Rank from "./components/Rank";
 import FaceRecognition from "./components/FaceRecognition";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import Clarifai from "clarifai";
 import "./App.scss";
+
+const initialState = {
+	input: "",
+	imageUrl: "",
+	box: {},
+	route: "signin",
+	isSignedIn: false,
+	user: {
+		id: "",
+		name: "",
+		email: "",
+		password: "",
+		entries: 0,
+		joined: ""
+	}
+};
 
 const app = new Clarifai.App({
 	apiKey: process.env.REACT_APP_API_KEY
 });
 class App extends Component {
-	state = {
-		input: "",
-		imageUrl: "",
-		box: {},
-		route: "signin",
-		isSignedIn: false,
-		user: {
-			id: "",
-			name: "",
-			email: "",
-			password: "",
-			entries: 0,
-			joined: ""
-		}
-	};
+	state = initialState;
 
 	loadUser = userData => {
 		this.setState({
@@ -67,12 +69,7 @@ class App extends Component {
 	onSubmit = () => {
 		this.setState({ imageUrl: this.state.input });
 		app.models
-			.predict(
-				Clarifai.FACE_DETECT_MODEL,
-				// URL for image gathered from user's input
-				this.state.input
-			)
-			// the calculations returned by calculateFaceLocation is placed as an argument into the displayFaceBox function
+			.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
 			.then(response => {
 				if (response) {
 					fetch("http://localhost:3000/image", {
@@ -84,7 +81,7 @@ class App extends Component {
 					})
 						.then(response => response.json())
 						.then(count => {
-							this.setState({ ...this.state.user, user: { entries: count, name: this.state.user.name } });
+							this.setState(Object.assign(this.state.user, { entries: count }));
 						});
 				}
 				this.displayFaceBox(this.calculateFaceLocation(response));
@@ -94,7 +91,7 @@ class App extends Component {
 
 	onRouteChange = route => {
 		if (route === "signout") {
-			this.setState({ isSignedIn: false });
+			this.setState(initialState);
 		} else if (route === "home") {
 			this.setState({ isSignedIn: true });
 		}
