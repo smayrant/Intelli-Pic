@@ -21,7 +21,7 @@ class Register extends React.Component {
 
 	// sends the user to the home page after successfully logging in
 	onSubmitLogin = () => {
-		fetch("http://localhost:3000/register", {
+		fetch("https://secure-tundra-97052.herokuapp.com/register", {
 			method: "post",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({

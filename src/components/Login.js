@@ -16,7 +16,7 @@ class Login extends React.Component {
 
 	// sends the user to the home page after successfully logging in
 	onSubmitLogin = () => {
-		fetch("http://localhost:3000/login", {
+		fetch("https://secure-tundra-97052.herokuapp.com/login", {
 			method: "post",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
