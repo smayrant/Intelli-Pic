@@ -26,8 +26,10 @@ const initialState = {
 };
 
 const app = new Clarifai.App({
-	apiKey: "36842bec504a4bb2854c3e14ea0c01b2"
+	apiKey: process.env.REACT_APP_API_KEY
 });
+
+console.log(process.env.REACT_APP_API_KEY);
 class App extends Component {
 	state = initialState;
 
